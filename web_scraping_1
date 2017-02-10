@@ -1,0 +1,33 @@
+
+import requests
+import bs4
+headers = {'User-Agent':'Mozilla/5.0'}
+url = 'http://pubs.acs.org/doi/abs/10.1021/jacs.6b10690'
+html = requests.get(url, headers=headers)
+
+soup = bs4.BeautifulSoup(html.text, 'lxml')
+
+
+article_title = soup.find(class_="articleTitle").text
+print(article_title)
+
+affiliations=soup.find(class_="affiliations").text
+print(affiliations)
+
+citation_year = soup.find(class_="citation_year").text
+print(citation_year)
+
+citation_volume = soup.find(class_="citation_volume").text
+print(citation_volume)
+
+citation = soup.find(id="citation").text
+print(citation)
+
+pubdate = soup.find(id="pubDate").text
+print(pubdate)
+
+authors = soup.find(id="authors").text
+print(authors)
+
+abstract = soup.find(class_="articleBody_abstractText").text
+print(abstract)
