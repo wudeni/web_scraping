@@ -1,0 +1,17 @@
+import requests
+import bs4
+
+headers = {'User-Agent':'Mozilla/5.0'}
+
+# extracting specific data from 3 different articles
+urls = ['http://pubs.acs.org/doi/abs/10.1021/jacs.6b10690', 'http://pubs.acs.org/doi/abs/10.1021/jacs.6b10027', 'http://pubs.acs.org/doi/abs/10.1021/jacs.6b09634']
+
+i=0
+while i < len(urls):
+    html = requests.get(urls[i], headers=headers)
+    soup = bs4.BeautifulSoup(html.text, 'lxml')
+    article_title = soup.find(class_="articleTitle").text
+    print('Article Title: ', article_title)
+    affiliations=soup.find(class_="affiliations")
+    print(affiliations)
+    i+=1
