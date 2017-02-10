@@ -1,0 +1,73 @@
+import requests
+import bs4
+import re
+import csv
+
+headers = {'User-Agent':'Mozilla/5.0'}
+
+url = 'http://pubs.acs.org/toc/jacsat/139/5'
+html = requests.get(url, headers=headers)
+
+soup = bs4.BeautifulSoup(html.text, 'lxml')
+
+tags = soup.findAll('a', href=re.compile("full"))
+
+i = 0
+article_details = []
+
+for tag in tags:
+    new_url = tag.get('href', None)
+    newurl = 'http://pubs.acs.org' + new_url
+    newhtml = requests.get(newurl, headers=headers) 
+    newsoup = bs4.BeautifulSoup(newhtml.text, 'lxml')
+    i=+1
+    article_id=i 
+    link = newurl
+    article_title = newsoup.find(class_="articleTitle").text
+    affiliations = newsoup.find(class_="affiliations").text
+    authors = newsoup.find(id="authors").text
+    doi = newsoup.find(id='doi').text
+    citation_year = newsoup.find(class_="citation_year").text
+    citation_volume = newsoup.find(class_="citation_volume").text
+    citation = newsoup.find(id="citation").text
+    
+    cite = citation.split(',')
+    vol_issue =cite[2].split(' ')
+    issue_ls=vol_issue[2]
+    issue_2=issue_ls[1].split('(')
+    pgnumbers =cite[3].split(' ')
+    journal_name = cite[0]
+    year = cite[1]
+    volume=vol_issue[1]
+    citation_issue = issue_2[0]
+    page_numbers = pgnumbers[2]
+
+    print('journal name: ', journal_name)
+    print('year: ', year)
+    print('volume:', volume)
+    print('issue: ', citation_issue)
+    print ('page numbers: ', page_numbers)
+
+    pubdate = newsoup.find(id="pubDate").text
+    print(pubdate)
+    pubdate_ls = pubdate.split(' ')
+    pub_month = pubdate_ls[3]
+    date1 = pubdate_ls[4]
+    date2 = date1.split(',')
+    pub_date = date2[0]
+    pub_year = pubdate_ls[5]
+    print (pub_month)
+    print(pub_date)
+    print(pub_year)
+
+    
+    details = [article_id,article_title,authors, doi,citation_year, pub_year, pub_month,pub_date, citation_volume, citation_issue, page_numbers, link]
+    article_details.append(details)
+
+    #abstract = soup.find(class_="articleBody_abstractText").text
+    #print(abstract)
+   
+with open ('jacs1.csv','wb') as file:
+    writer=csv.writer(file)
+    for row in article_details:
+        writer.writerow(row)
